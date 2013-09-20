@@ -107,6 +107,7 @@ security_policy_check_mok(void *data, UINTN len)
 static EFI_SECURITY_FILE_AUTHENTICATION_STATE esfas = NULL;
 static EFI_SECURITY2_FILE_AUTHENTICATION es2fa = NULL;
 
+#ifdef __LP64__
 static EFI_STATUS thunk_security_policy_authentication(
 	const EFI_SECURITY_PROTOCOL *This,
 	UINT32 AuthenticationStatus,
@@ -122,6 +123,7 @@ static EFI_STATUS thunk_security2_policy_authentication(
 	BOOLEAN	BootPolicy
 						       ) 
 __attribute__((unused));
+#endif
 
 static __attribute__((used)) EFI_STATUS
 security2_policy_authentication (
@@ -247,8 +249,12 @@ security_policy_authentication (
  * This means when accepting a function callback from MS -> ELF, we have to do
  * separate preservation on %rdi, %rsi before swizzling the arguments and
  * handing off to the ELF function.
+ *
+ * The statement above applies to amd64 platform only, on vanilla 32 bit calling
+ * conventions bitween ELF and EFI are the same.
  */
 
+#if __LP64__
 asm (
 ".type security2_policy_authentication,@function\n"
 "thunk_security2_policy_authentication:\n\t"
@@ -305,6 +311,7 @@ asm (
 	"pop	%rdi\n\t"
 	"ret\n"
 );
+#endif
 
 EFI_STATUS
 security_policy_install(void)
@@ -333,13 +340,23 @@ security_policy_install(void)
 
 	if (security2_protocol) {
 		es2fa = security2_protocol->FileAuthentication;
-		security2_protocol->FileAuthentication = 
+#if __LP64__
+		security2_protocol->FileAuthentication =
 			thunk_security2_policy_authentication;
+#else
+		security2_protocol->FileAuthentication =
+			security2_policy_authentication;
+#endif
 	}
 
 	esfas = security_protocol->FileAuthenticationState;
+#if __LP64__
 	security_protocol->FileAuthenticationState =
 		thunk_security_policy_authentication;
+#else
+	security_protocol->FileAuthenticationState =
+		security_policy_authentication;
+#endif
 
 	return EFI_SUCCESS;
 }

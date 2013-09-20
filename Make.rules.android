@@ -9,12 +9,12 @@ STATIC_DB_PATH ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/bios/
 ifeq ($(ARCH),x86_64)
 	GNUEFI_TOP=$(ANDROID_BUILD_TOP)/prebuilts/tools/linux-x86_64/gnu-efi
 	OPENSSL_LIB=$(ANDROID_BUILD_TOP)/prebuilts/tools/linux-x86_64/openssl
+	LIBGCC=$(shell $(CC) -print-libgcc-file-name)
 else
 	ifeq ($(ARCH),ia32)
 		GNUEFI_TOP=$(ANDROID_BUILD_TOP)/prebuilts/tools/linux-x86/gnu-efi
 		OPENSSL_LIB=$(ANDROID_BUILD_TOP)/prebuilts/tools/linux-x86/openssl
-	else
-        $(error Unsupported architecture!)
+		LIBGCC=$(shell $(CC) -m32 -print-libgcc-file-name)
 	endif
 endif
 
@@ -36,7 +36,7 @@ CRTOBJS		= $(CRTPATH)/$(CRTOBJ)
 # aligned otherwise the file alignment gets screwed up
 LDSCRIPT	= $(GNUEFI_TOP)/lib/elf_$(ARCH)_efi.lds
 LDFLAGS		+= -T $(LDSCRIPT) -shared -Bsymbolic $(CRTOBJS) -L $(CRTPATH)
-LOADLIBES	= -lefi -lgnuefi $(shell $(CC) -print-libgcc-file-name)
+LOADLIBES	= -lefi -lgnuefi $(LIBGCC)
 FORMAT		= efi-app-$(ARCH)
 OBJCOPY		= objcopy
 MYGUID		= 11111111-2222-3333-4444-123456789abc
@@ -52,7 +52,7 @@ endif
 
 ifeq ($(ARCH),ia32)
   CFLAGS += -m32
-  LDFLAGS += -m32
+  LDFLAGS += 
 endif
 
 %.unsigned.efi: %.so

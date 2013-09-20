@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SUPPORTED_ARCH="x86_64"
+SUPPORTED_ARCH="ia32 x86_64"
 
 if [ ! -d "$ANDROID_BUILD_TOP" ] ; then
     echo "Android top dir is invalid. Did you forget to run these commands first?"
@@ -11,12 +11,14 @@ fi
 
 MANUAL_RECOVER="You need to recover the source directory by hand and build again."
 
-CC=$ANDROID_BUILD_TOP/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6/bin/x86_64-linux-gcc
+
 
 for arch in $SUPPORTED_ARCH ; do
     if [ $arch == "ia32" ] ; then
+	CC=$ANDROID_BUILD_TOP/prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.6/bin/i686-linux-gcc
         ARCH_SUFFIX=x86
     else
+        CC=$ANDROID_BUILD_TOP/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6/bin/x86_64-linux-gcc
         ARCH_SUFFIX=$arch
     fi
 

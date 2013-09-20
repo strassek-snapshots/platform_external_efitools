@@ -2,11 +2,13 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# TODO: support ia32 prebuilt
-
 ifeq ($(TARGET_KERNEL_ARCH),x86_64)
-
 arch_name := x86_64
+endif
+
+ifeq ($(TARGET_KERNEL_ARCH),i386)
+arch_name := x86
+endif
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := LockDown.efi
@@ -19,4 +21,3 @@ include $(BUILD_PREBUILT)
 
 LOCKDOWN_EFI := $(PRODUCT_OUT)/efi/LockDown.efi
 
-endif

@@ -72,25 +72,25 @@ PreLoader.so: lib/lib-efi.a
 HelloWorld.so: lib/lib-efi.a
 
 cert-to-efi-sig-list: cert-to-efi-sig-list.o lib/lib.a
-	$(CC) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
+	$(CC) $(CFLAGS) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
 
 sig-list-to-certs: sig-list-to-certs.o lib/lib.a
-	$(CC) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
+	$(CC) $(CFLAGS) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
 
 sign-efi-sig-list: sign-efi-sig-list.o lib/lib.a
-	$(CC) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
+	$(CC) $(CFLAGS) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
 
 hash-to-efi-sig-list: hash-to-efi-sig-list.o lib/lib.a
-	$(CC) -o $@ $< lib/lib.a
+	$(CC) $(CFLAGS) -o $@ $< lib/lib.a
 
 efi-keytool: efi-keytool.o lib/lib.a
-	$(CC) -o $@ $< lib/lib.a
+	$(CC) $(CFLAGS) -o $@ $< lib/lib.a
 
 efi-readvar: efi-readvar.o lib/lib.a
-	$(CC) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
+	$(CC) $(CFLAGS) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
 
 efi-updatevar: efi-updatevar.o lib/lib.a
-	$(CC) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
+	$(CC) $(CFLAGS) -L $(OPENSSL_LIB) -o $@ $< -lcrypto lib/lib.a
 
 .PHONY : clean
 clean:
