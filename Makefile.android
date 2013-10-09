@@ -18,19 +18,23 @@ lib/lib.a lib/lib-efi.a: FORCE
 lib/asn1/libasn1.a lib/asn1/libasn1-efi.a: FORCE
 	$(MAKE) -C lib/asn1 -f Makefile.android $(notdir $@)
 
-.SUFFIXES: .crt
+PK.pk8: $(PK_KEY_PAIR).pk8
+	cp -v $^ $@
 
-PK.crt: $(STATIC_PK_PATH)/PK.crt $(STATIC_PK_PATH)/PK.key
-	cp -v $^ $(PWD)/
+KEK.pk8: $(KEK_KEY_PAIR).pk8
+	cp -v $^ $@
 
-KEK.crt: $(STATIC_KEK_PATH)/KEK.crt $(STATIC_KEK_PATH)/KEK.key
-	cp -v $^ $(PWD)/
+DB.pk8: $(DB_KEY_PAIR).pk8
+	cp -v $^ $@
 
-DB.crt: $(STATIC_DB_PATH)/DB.crt $(STATIC_DB_PATH)/DB.key
-	cp -v $^ $(PWD)/
+PK.x509.pem: $(PK_KEY_PAIR).x509.pem
+	cp -v $^ $@
 
-.KEEP: PK.crt KEK.crt DB.crt PK.key KEK.key DB.key PK.esl DB.esl KEK.esl \
-	$(EFIFILES) $(EFIUNSIGNED)
+KEK.x509.pem: $(KEK_KEY_PAIR).x509.pem
+	cp -v $^ $@
+
+DB.x509.pem: $(DB_KEY_PAIR).x509.pem
+	cp -v $^ $@
 
 LockDown.o: PK.h KEK.h DB.h
 PreLoader.o: hashlist.h
@@ -44,17 +48,17 @@ DB.h: DB.auth
 noPK.esl:
 	> noPK.esl
 
-noPK.auth: noPK.esl PK.crt sign-efi-sig-list
-	./sign-efi-sig-list -c PK.crt -k PK.key PK $< $@
+noPK.auth: noPK.esl PK.x509.pem PK.key sign-efi-sig-list
+	./sign-efi-sig-list -c PK.x509.pem -k PK.key PK $< $@
 
-PK.auth: PK.esl PK.crt sign-efi-sig-list
-	./sign-efi-sig-list -c PK.crt -k PK.key PK $< $@
+PK.auth: PK.esl PK.x509.pem PK.key sign-efi-sig-list
+	./sign-efi-sig-list -c PK.x509.pem -k PK.key PK $< $@
 
-KEK.auth: KEK.esl PK.crt sign-efi-sig-list
-	./sign-efi-sig-list -c PK.crt -k PK.key KEK $< $@
+KEK.auth: KEK.esl PK.x509.pem PK.key sign-efi-sig-list
+	./sign-efi-sig-list -c PK.x509.pem -k PK.key KEK $< $@
 
-DB.auth: DB.esl KEK.crt sign-efi-sig-list
-	./sign-efi-sig-list -c KEK.crt -k KEK.key db $< $@
+DB.auth: DB.esl KEK.x509.pem KEK.key sign-efi-sig-list
+	./sign-efi-sig-list -c KEK.x509.pem -k KEK.key db $< $@
 
 hashlist.h: HashTool.hash
 	cat $^ > /tmp/tmp.hash

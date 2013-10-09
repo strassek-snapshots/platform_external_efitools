@@ -1,5 +1,4 @@
 #!/bin/bash
-
 SUPPORTED_ARCH="ia32 x86_64"
 
 if [ ! -d "$ANDROID_BUILD_TOP" ] ; then
@@ -24,7 +23,7 @@ for arch in $SUPPORTED_ARCH ; do
 
     PREBUILTS_PATH=$ANDROID_BUILD_TOP/prebuilts/tools/linux-$ARCH_SUFFIX/efitools
 
-    MAKE_ANDROID_CMD="make CC=$CC ARCH=$arch -f Makefile.android"
+    MAKE_ANDROID_CMD="make -j12 CC=$CC ARCH=$arch -f Makefile.android"
 
     if ! $MAKE_ANDROID_CMD clean ; then
         echo "make clean failed. $MANUAL_RECOVER"

@@ -2,9 +2,9 @@ MANPAGES = $(patsubst doc/%.1.in,doc/%.1,$(wildcard doc/*.1.in))
 HELP2MAN = help2man
 
 # Use static keys for experimental purposes.
-STATIC_PK_PATH ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/bios/
-STATIC_KEK_PATH ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/bios/
-STATIC_DB_PATH ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/bios/
+PK_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/PK
+KEK_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/KEK
+DB_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/build/target/product/security/testkey
 
 ifeq ($(ARCH),x86_64)
 	GNUEFI_TOP=$(ANDROID_BUILD_TOP)/prebuilts/tools/linux-x86_64/gnu-efi
@@ -70,8 +70,11 @@ endif
 %.hash: %.efi hash-to-efi-sig-list
 	./hash-to-efi-sig-list $< $@
 
-%.esl: %.crt cert-to-efi-sig-list
+%.esl: %.x509.pem cert-to-efi-sig-list
 	./cert-to-efi-sig-list -g $(MYGUID) $< $@
+
+%.key: %.pk8
+	openssl pkcs8 -nocrypt -inform DER -outform PEM -in $^ -out $@
 
 %.o: %.c
 	$(CC) $(INCDIR) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
@@ -82,18 +85,17 @@ endif
 %.efi.s: %.c
 	$(CC) -S $(INCDIR) $(CFLAGS) $(CPPFLAGS) -fno-toplevel-reorder -DBUILD_EFI -c $< -o $@
 
-
-%.cer: %.crt
+%.cer: %.x509.pem
 	openssl x509 -in $< -out $@ -outform DER
 
 %-subkey.csr:
 	openssl req -new -newkey rsa:2048 -keyout $*-subkey.key -subj "/CN=Subkey $* of KEK/" -out $@ -nodes
 
-%-subkey.crt: %-subkey.csr KEK.crt
-	openssl x509 -req -in $< -CA DB.crt -CAkey DB.key -set_serial 1 -out $@ -days 365
+%-subkey.x509.pem: %-subkey.csr DB.x509.pem DB.key
+	openssl x509 -req -in $< -CA DB.x509.pem -CAkey DB.key -set_serial 1 -out $@ -days 365
 
-%.efi: %.unsigned.efi DB.crt
-	sbsign --key DB.key --cert DB.crt --output $@ $<
+%.efi: %.unsigned.efi DB.key DB.x509.pem
+	sbsign --key DB.key --cert DB.x509.pem --output $@ $<
 
 %.a:
 	ar rcv $@ $^
