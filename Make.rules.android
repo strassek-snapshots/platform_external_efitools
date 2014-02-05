@@ -9,7 +9,7 @@ ifneq ($(LOCKDOWN_KEY_DIR),)
 else
 	PK_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/PK
 	KEK_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/KEK
-	DB_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/build/target/product/security/testkey
+	DB_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/DB
 endif
 
 ifeq ($(ARCH),x86_64)
