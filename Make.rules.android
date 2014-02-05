@@ -79,8 +79,13 @@ endif
 %.esl: %.x509.pem cert-to-efi-sig-list
 	./cert-to-efi-sig-list -g $(MYGUID) $< $@
 
+ifeq ($(KEY_PASSPHRASE),)
 %.key: %.pk8
 	openssl pkcs8 -nocrypt -inform DER -outform PEM -in $^ -out $@
+else
+%.key: %.pk8
+	echo $(KEY_PASSPHRASE) | openssl pkcs8 -passin stdin -inform DER -outform PEM -in $^ -out $@
+endif
 
 %.o: %.c
 	$(CC) $(INCDIR) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
