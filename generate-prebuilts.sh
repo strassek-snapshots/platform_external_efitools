@@ -21,7 +21,7 @@ for arch in $SUPPORTED_ARCH ; do
         ARCH_SUFFIX=$arch
     fi
 
-    PREBUILTS_PATH=$ANDROID_BUILD_TOP/prebuilts/tools/linux-$ARCH_SUFFIX/efitools
+    PREBUILTS_PATH=$ANDROID_BUILD_TOP/hardware/intel/efi_prebuilts/efitools/linux-$ARCH_SUFFIX/
 
     MAKE_ANDROID_CMD="make -j12 CC=$CC ARCH=$arch -f Makefile.android"
 

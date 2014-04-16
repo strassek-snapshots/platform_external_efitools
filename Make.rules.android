@@ -1,27 +1,27 @@
 MANPAGES = $(patsubst doc/%.1.in,doc/%.1,$(wildcard doc/*.1.in))
 HELP2MAN = help2man
 
+PREBUILTS_ROOT := $(ANDROID_BUILD_TOP)/hardware/intel/efi_prebuilts/
+
 # Use static keys for experimental purposes.
 ifneq ($(LOCKDOWN_KEY_DIR),)
 	PK_KEY_PAIR ?= $(LOCKDOWN_KEY_DIR)/PK
 	KEK_KEY_PAIR ?= $(LOCKDOWN_KEY_DIR)/KEK
 	DB_KEY_PAIR ?= $(LOCKDOWN_KEY_DIR)/DB
 else
-	PK_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/PK
-	KEK_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/KEK
-	DB_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/common/testkeys/DB
+	PK_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/build/testkeys/PK
+	KEK_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/build/testkeys/KEK
+	DB_KEY_PAIR ?= $(ANDROID_BUILD_TOP)/device/intel/build/testkeys/DB
 endif
 
 ifeq ($(ARCH),x86_64)
-	GNUEFI_TOP=$(ANDROID_BUILD_TOP)/prebuilts/tools/linux-x86_64/gnu-efi
-	OPENSSL_LIB=$(ANDROID_BUILD_TOP)/prebuilts/tools/linux-x86_64/openssl
+	GNUEFI_TOP=$(PREBUILTS_ROOT)/gnu-efi/linux-x86_64/
+	OPENSSL_LIB=$(PREBUILTS_ROOT)/openssl/linux-x86_64/
 	LIBGCC=$(shell $(CC) -print-libgcc-file-name)
 else
-	ifeq ($(ARCH),ia32)
-		GNUEFI_TOP=$(ANDROID_BUILD_TOP)/prebuilts/tools/linux-x86/gnu-efi
-		OPENSSL_LIB=$(ANDROID_BUILD_TOP)/prebuilts/tools/linux-x86/openssl
-		LIBGCC=$(shell $(CC) -m32 -print-libgcc-file-name)
-	endif
+	GNUEFI_TOP=$(PREBUILTS_ROOT)/gnu-efi/linux-x86/
+	OPENSSL_LIB=$(PREBUILTS_ROOT)/openssl/linux-x86/
+	LIBGCC=$(shell $(CC) -m32 -print-libgcc-file-name)
 endif
 
 OPENSSL=$(shell which openssl)
