@@ -2,20 +2,35 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifeq ($(TARGET_UEFI_ARCH),i386)
-arch_name := x86
-else
-arch_name := x86_64
-endif
+EFITOOLS_CFLAGS :=  -fpic -Wall -fshort-wchar -fno-strict-aliasing -fno-merge-constants -mno-red-zone -fno-stack-protector -g
 
 include $(CLEAR_VARS)
-LOCAL_MODULE := LockDown.efi
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_PATH := $(PRODUCT_OUT)/efi
-LOCAL_MODULE_STEM := $(LOCAL_MODULE)
-LOCAL_SRC_FILES := ../../prebuilts/tools/linux-$(arch_name)/efitools/LockDown.efi
-include $(BUILD_PREBUILT)
 
-LOCKDOWN_EFI := $(PRODUCT_OUT)/efi/LockDown.efi
+LOCAL_MODULE := sign-efi-sig-list
+LOCAL_SRC_FILES := sign-efi-sig-list.c lib/guid.c
+LOCAL_SHARED_LIBRARIES := libcrypto-host
+LOCAL_CFLAGS := $(EFITOOLS_CFLAGS)
+LOCAL_C_INCLUDES := \
+    external/gnu-efi/gnu-efi-3.0/inc \
+    external/gnu-efi/gnu-efi-3.0/inc/ia32 \
+    external/openssl/include/ \
+    $(LOCAL_PATH)/lib \
+    $(LOCAL_PATH)/include
+
+include $(BUILD_HOST_EXECUTABLE)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := cert-to-efi-sig-list
+LOCAL_SRC_FILES := cert-to-efi-sig-list.c lib/guid.c
+LOCAL_SHARED_LIBRARIES := libcrypto-host
+LOCAL_CFLAGS := $(EFITOOLS_CFLAGS)
+LOCAL_C_INCLUDES := \
+    external/gnu-efi/gnu-efi-3.0/inc \
+    external/gnu-efi/gnu-efi-3.0/inc/ia32 \
+    external/openssl/include/ \
+    $(LOCAL_PATH)/lib \
+    $(LOCAL_PATH)/include
+
+include $(BUILD_HOST_EXECUTABLE)
+
 
